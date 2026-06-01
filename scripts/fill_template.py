@@ -3,7 +3,7 @@
 """把一个或多个规范化 JSON（extract_form.py 产物）填充成干净的标准模板 xlsx。
 
 - 多个输入会合并（行拼接 + 日期区取并集），实现“统一为一个模板文件”。
-- 输出从 schema 现搭，天然无示例数据；文件名用 schema 的 output_name_pattern + 日期。
+- 输出从 schema 现搭，天然无示例数据；文件名 = output_name_pattern(数据日期) + 末尾追加生成时刻(精确到分钟)。
 
 用法:
     python fill_template.py <norm1.json> [norm2.json ...] [--template id]
@@ -71,15 +71,19 @@ def main():
 
     dates = sorted({iso for r in rows for iso in r["series"].keys()})
 
-    # 文件名日期
+    # 文件名 = 业务数据日期段 + 末尾追加“生成时刻(精确到分钟)”
     name_date = args.name_date
     if not name_date:
         name_date = (dates[0].replace("-", "") if dates else dt.date.today().strftime("%Y%m%d"))
+    gen_ts = dt.datetime.now().strftime("%Y%m%d-%H%M")     # 如 20260602-1430
     fname = tpl["output_name_pattern"].format(date=name_date)
+    stem, ext = os.path.splitext(fname)
+    fname = f"{stem}_{gen_ts}{ext}"                        # 客户需求排产表_20260227_20260602-1430.xlsx
     out_path = args.out or os.path.join(args.out_dir, fname)
 
     res = write_form(out_path, tpl, rows=rows, dates=dates)
     print(f"✓ 已生成【{tpl['display_name']}】: {out_path}")
+    print(f"   生成时刻={gen_ts.replace('-', ' ')[:13]}（已写入文件名末尾，精确到分钟）")
     print(f"   数据行={res['n_rows']}  列数={res['n_cols']}  日期区={len(dates)}列  "
           f"范围={(dates[0]+'~'+dates[-1]) if dates else '无'}")
     print(f"   来源: {[n['source_file'] for n in norms]}")

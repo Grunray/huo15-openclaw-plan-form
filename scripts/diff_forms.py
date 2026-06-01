@@ -13,7 +13,7 @@
         --template <模板id> [--out 标注版.xlsx] [--report diff.json]
 """
 from __future__ import annotations
-import sys, os, json, argparse
+import sys, os, json, argparse, datetime as dt
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from lib_forms import load_schema, template_by_id
 from lib_xlsx import write_form, build_leaf_columns
@@ -169,7 +169,8 @@ def main():
     keys = tpl.get("diff_key", [])
 
     diff = compute_diff(new_rows, old_rows, keys)
-    out = args.out or f"差异标注_{tpl['display_name']}.xlsx"
+    gen_ts = dt.datetime.now().strftime("%Y%m%d-%H%M")     # 生成时刻，精确到分钟
+    out = args.out or f"差异标注_{tpl['display_name']}_{gen_ts}.xlsx"
     ann = annotate(out, tpl, new_rows, diff, keys)
 
     print(f"🔍 差异比对【{tpl['display_name']}】 主键={keys}")

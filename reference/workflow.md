@@ -81,7 +81,8 @@ python3 scripts/fill_template.py work/a.norm.json work/b.norm.json work/c.norm.j
 ```
 - 行拼接、日期区取并集 → **一份**统一模板。
 - `--dedup` 按模板 `diff_key` 合并同料号行（后到的 series/scalar 覆盖累加）。
-- `--name-date 20260501` 自定义文件名日期；不传取数据最早日期。
+- `--name-date 20260501` 自定义文件名里的**数据日期**段；不传取数据最早日期。
+- 自动命名的文件名**末尾固定追加生成时刻**（`YYYYMMDD-HHMM`，精确到分钟），用于区分同一批数据的多次生成版本，如 `客户需求排产表_20260227_20260602-1430.xlsx`。显式传 `--out` 时尊重你给的完整路径，不再追加。
 
 ## `diff_forms.py` 细节
 
@@ -93,6 +94,7 @@ python3 scripts/fill_template.py work/a.norm.json work/b.norm.json work/c.norm.j
   - 🟡 独立 sheet「本次删除(旧有新无)」= 旧表有、新表没了的料号
   - A2 单元格批注 = 图例与计数
 - 同时产出 `*.diff.json` 结构化报告（added/removed/changed 清单），可喂给后续自动化。
+- 不传 `--out` 时默认名也**末尾带生成时刻**（如 `差异标注_客户需求排产表_20260602-1430.xlsx`），精确到分钟。
 
 ## 调 schema（加列/改别名/换主键）
 
