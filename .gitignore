@@ -6,3 +6,11 @@ __MACOSX/
 # Excel temp/lock files
 .~*
 ~$*
+
+# Skill 运行时产物（中间/输出，不入库）
+work/
+out/
+*.norm.json
+*.diff.json
+__pycache__/
+*.pyc
